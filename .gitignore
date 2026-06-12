@@ -6,8 +6,6 @@ __pycache__/
 venv/
 dist/
 build/
-*.db
-!example.db
 *.db-shm
 *.db-wal
 .coverage
