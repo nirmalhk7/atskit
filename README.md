@@ -2,6 +2,8 @@
 
 ATSKit is a standalone Python library for discovering jobs across supported applicant tracking systems (ATS). It reads company portal metadata from a caller-supplied SQLite database, queries each portal's public API, and **streams results per portal** as each query completes.
 
+**Documentation:** [docs/](docs/README.md) — getting started, API reference, portal guide, and more.
+
 ## Install
 
 From GitHub:
