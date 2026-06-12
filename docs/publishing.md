@@ -45,14 +45,13 @@ feat!: rename PortalEntry fields       → major bump
 1. Run `pytest`
 2. Compute and write the next semver
 3. Build sdist + wheel (`python -m build`)
-4. Upload to `https://upload.pypi.pkg.github.com/nirmalhk7/`
-5. Commit the version bump, tag `vX.Y.Z`, push to `main`
+4. Upload to `https://pypi.pkg.github.com/nirmalhk7/` via `twine`
+5. Attach wheels to a GitHub Release (`gh release create`)
+6. Commit the version bump, tag `vX.Y.Z`, push to `main`
 
-## Install from GitHub Packages
+## Install
 
-Published package page: [github.com/nirmalhk7/atskit/packages](https://github.com/nirmalhk7/atskit/packages)
-
-GitHub Packages requires authentication for `pip install` in most cases. Create a [personal access token](https://github.com/settings/tokens) with `read:packages`.
+### From GitHub Packages
 
 ```bash
 pip install atskit \
@@ -60,21 +59,19 @@ pip install atskit \
   --extra-index-url https://pypi.org/simple/
 ```
 
-When prompted for credentials, use your GitHub username and the token as the password. Alternatively, configure `~/.netrc`:
+Use your GitHub username and a [personal access token](https://github.com/settings/tokens) with `read:packages` when prompted.
 
-```
-machine pypi.pkg.github.com
-login nirmalhk7
-password YOUR_GITHUB_TOKEN
-```
+### From a GitHub Release (wheel URL)
 
-Optional extras:
+Every publish also attaches wheels to the matching GitHub Release:
 
 ```bash
-pip install "atskit[greenhouse]" \
-  --index-url https://pypi.pkg.github.com/nirmalhk7/simple/ \
-  --extra-index-url https://pypi.org/simple/
+pip install "https://github.com/nirmalhk7/atskit/releases/download/v0.2.0/atskit-0.2.0-py3-none-any.whl"
 ```
+
+Replace the version in the URL with the latest [release tag](https://github.com/nirmalhk7/atskit/releases).
+
+### From source
 
 ## CI vs publish
 

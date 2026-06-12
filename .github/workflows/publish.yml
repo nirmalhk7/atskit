@@ -34,7 +34,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install build tooling
-        run: pip install build
+        run: pip install build twine
 
       - name: Run tests
         run: |
@@ -52,11 +52,13 @@ jobs:
         run: python -m build
 
       - name: Publish to GitHub Packages
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://upload.pypi.pkg.github.com/nirmalhk7/
-          user: nirmalhk7
-          password: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          TWINE_USERNAME: ${{ github.actor }}
+          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          twine upload dist/* \
+            --repository-url "https://pypi.pkg.github.com/${{ github.repository_owner }}/" \
+            --non-interactive
 
       - name: Commit version bump and tag release
         env:
@@ -66,13 +68,28 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pyproject.toml
           git commit -m "chore: release v${VERSION} [skip publish]"
-          git tag -a "v${VERSION}" -m "Release v${VERSION}"
+          git tag -fa "v${VERSION}" -m "Release v${VERSION}"
           git push origin main
-          git push origin "v${VERSION}"
+          git push origin "v${VERSION}" --force
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            gh release upload "v${VERSION}" dist/* --clobber
+          else
+            gh release create "v${VERSION}" dist/* \
+              --title "v${VERSION}" \
+              --notes "Automated release from commit ${GITHUB_SHA}"
+          fi
 
       - name: Publish summary
         env:
           VERSION: ${{ steps.version.outputs.version }}
           BUMP: ${{ steps.version.outputs.bump }}
         run: |
-          echo "Published atskit ${VERSION} (${BUMP} bump) to GitHub Packages"
+          echo "Published atskit ${VERSION} (${BUMP} bump)"
+          echo "GitHub Packages index: https://pypi.pkg.github.com/${{ github.repository_owner }}/simple/"
+          echo "GitHub Release: https://github.com/${{ github.repository }}/releases/tag/v${VERSION}"
