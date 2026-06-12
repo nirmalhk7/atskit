@@ -1,22 +1,32 @@
 name: Publish
 
 on:
-  release:
-    types: [published]
   push:
-    tags:
-      - "v*"
+    branches: [main]
+    paths:
+      - "**/*.py"
+      - "pyproject.toml"
+      - "requirements.txt"
   workflow_dispatch:
 
+concurrency:
+  group: publish-main
+  cancel-in-progress: false
+
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
   publish:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      !contains(github.event.head_commit.message, '[skip publish]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,12 +34,19 @@ jobs:
           python-version: "3.12"
 
       - name: Install build tooling
-        run: pip install build twine
+        run: pip install build
 
       - name: Run tests
         run: |
           pip install -e ".[dev,greenhouse]"
           pytest -q
+
+      - name: Compute next semver
+        id: version
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: python scripts/bump_version.py --write
 
       - name: Build package
         run: python -m build
@@ -40,3 +57,22 @@ jobs:
           repository-url: https://upload.pypi.pkg.github.com/nirmalhk7/
           user: nirmalhk7
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit version bump and tag release
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml
+          git commit -m "chore: release v${VERSION} [skip publish]"
+          git tag -a "v${VERSION}" -m "Release v${VERSION}"
+          git push origin main
+          git push origin "v${VERSION}"
+
+      - name: Publish summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUMP: ${{ steps.version.outputs.bump }}
+        run: |
+          echo "Published atskit ${VERSION} (${BUMP} bump) to GitHub Packages"
