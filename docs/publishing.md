@@ -1,6 +1,8 @@
 # Publishing
 
-ATSKit is built and published to **GitHub Packages** automatically when Python-related files change on `main`.
+ATSKit is built and published automatically when Python-related files change on `main`.
+
+> **Note:** GitHub does not operate a working PyPI-compatible package registry (`pypi.pkg.github.com` returns 404). Releases are published as **GitHub Release assets** (wheel + sdist), which is the standard way to distribute Python packages on GitHub.
 
 ## Workflow
 
@@ -28,7 +30,7 @@ The script:
 1. Reads the current version from `pyproject.toml` and the latest `v*` git tag
 2. Uses the higher of the two as the base
 3. Inspects commit messages since the last tag
-4. Writes the new version to `pyproject.toml`, builds, publishes, then commits and tags `vX.Y.Z` with `[skip publish]`
+4. Writes the new version to `pyproject.toml`, builds, publishes a GitHub Release, then commits and tags `vX.Y.Z` with `[skip publish]`
 
 You do **not** need to bump `pyproject.toml` manually before merging.
 
@@ -43,40 +45,38 @@ feat!: rename PortalEntry fields       → major bump
 ## What each publish run does
 
 1. Run `pytest`
-2. Compute and write the next semver
+2. Compute and write the next semver to `pyproject.toml`
 3. Build sdist + wheel (`python -m build`)
-4. Upload to `https://pypi.pkg.github.com/nirmalhk7/` via `twine`
-5. Attach wheels to a GitHub Release (`gh release create`)
-6. Commit the version bump, tag `vX.Y.Z`, push to `main`
+4. Commit the version bump and push tag `vX.Y.Z` to `main`
+5. Create or update a [GitHub Release](https://github.com/nirmalhk7/atskit/releases) with `dist/*` attached
 
-## Install
+## Install from a release
 
-### From GitHub Packages
-
-```bash
-pip install atskit \
-  --index-url https://pypi.pkg.github.com/nirmalhk7/simple/ \
-  --extra-index-url https://pypi.org/simple/
-```
-
-Use your GitHub username and a [personal access token](https://github.com/settings/tokens) with `read:packages` when prompted.
-
-### From a GitHub Release (wheel URL)
-
-Every publish also attaches wheels to the matching GitHub Release:
+Find the latest version on the [releases page](https://github.com/nirmalhk7/atskit/releases), then:
 
 ```bash
 pip install "https://github.com/nirmalhk7/atskit/releases/download/v0.2.0/atskit-0.2.0-py3-none-any.whl"
 ```
 
-Replace the version in the URL with the latest [release tag](https://github.com/nirmalhk7/atskit/releases).
+With optional Greenhouse support, install dependencies first then the wheel:
 
-### From source
+```bash
+pip install trafilatura
+pip install "https://github.com/nirmalhk7/atskit/releases/download/v0.2.0/atskit-0.2.0-py3-none-any.whl"
+```
+
+Replace `v0.2.0` with the latest tag.
+
+## Install from source
+
+```bash
+pip install git+https://github.com/nirmalhk7/atskit.git@v0.2.0
+```
 
 ## CI vs publish
 
 - [`ci.yml`](../.github/workflows/ci.yml) — tests on every push/PR to `main` (Python 3.11 and 3.12).
-- [`publish.yml`](../.github/workflows/publish.yml) — tests, version bump, build, and upload when Python-related files change on `main`.
+- [`publish.yml`](../.github/workflows/publish.yml) — tests, version bump, build, and GitHub Release when Python-related files change on `main`.
 
 ## Permissions
 

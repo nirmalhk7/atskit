@@ -34,7 +34,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install build tooling
-        run: pip install build twine
+        run: pip install build
 
       - name: Run tests
         run: |
@@ -51,15 +51,6 @@ jobs:
       - name: Build package
         run: python -m build
 
-      - name: Publish to GitHub Packages
-        env:
-          TWINE_USERNAME: ${{ github.actor }}
-          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          twine upload dist/* \
-            --repository-url "https://pypi.pkg.github.com/${{ github.repository_owner }}/" \
-            --non-interactive
-
       - name: Commit version bump and tag release
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -72,7 +63,7 @@ jobs:
           git push origin main
           git push origin "v${VERSION}" --force
 
-      - name: Create GitHub Release
+      - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.version.outputs.version }}
@@ -91,5 +82,4 @@ jobs:
           BUMP: ${{ steps.version.outputs.bump }}
         run: |
           echo "Published atskit ${VERSION} (${BUMP} bump)"
-          echo "GitHub Packages index: https://pypi.pkg.github.com/${{ github.repository_owner }}/simple/"
-          echo "GitHub Release: https://github.com/${{ github.repository }}/releases/tag/v${VERSION}"
+          echo "Release: https://github.com/${{ github.repository }}/releases/tag/v${VERSION}"

@@ -12,7 +12,7 @@ From GitHub:
 pip install git+https://github.com/nirmalhk7/atskit.git
 ```
 
-Built wheels are published to [GitHub Packages](https://github.com/nirmalhk7/atskit/packages) automatically on every `main` commit that touches Python files. Versioning is semver and fully automatic — see [docs/publishing.md](docs/publishing.md).
+Built wheels are published to [GitHub Releases](https://github.com/nirmalhk7/atskit/releases) automatically on every `main` commit that touches Python files. Versioning is semver and fully automatic — see [docs/publishing.md](docs/publishing.md).
 
 For local development:
 

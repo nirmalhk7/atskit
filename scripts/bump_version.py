@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Compute next semver from git history and update pyproject.toml."""
+"""Compute next semver from git history and update pyproject.toml.
+
+Used by the Publish GitHub Actions workflow on each qualifying push to main.
+"""
 
 from __future__ import annotations
 
