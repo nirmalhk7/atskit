@@ -26,7 +26,13 @@ pip install "atskit[greenhouse]"
 
 ## Database contract
 
-Pass any SQLite file path. ATSKit reads/writes only the `portal_entries` table:
+Pass any SQLite file path. ATSKit reads/writes only the `portal_entries` table.
+
+An `example.db` ships with this repo (471 sample portals copied from a real discovery run). Try:
+
+```bash
+atskit discover --db example.db --max-workers 3
+```
 
 | Column | Type |
 |--------|------|
