@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atskit"
+version = "0.1.0"
+description = "ATS adapter kit: discover jobs across Greenhouse, Lever, Ashby, Workday, and more"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Nirmal HK" }]
+keywords = ["ats", "jobs", "greenhouse", "lever", "workday", "recruiting"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+]
+dependencies = [
+  "pydantic>=2",
+  "requests",
+  "beautifulsoup4",
+  "rapidfuzz",
+  "markdownify",
+]
+
+[project.optional-dependencies]
+greenhouse = ["trafilatura"]
+dev = ["pytest", "responses"]
+all = ["trafilatura"]
+
+[project.urls]
+Homepage = "https://github.com/nirmalhk7/atskit"
+Repository = "https://github.com/nirmalhk7/atskit"
+Issues = "https://github.com/nirmalhk7/atskit/issues"
+
+[project.scripts]
+atskit = "atskit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["atskit*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
