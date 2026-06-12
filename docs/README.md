@@ -12,5 +12,6 @@ Human-readable guides for the ATSKit Python library.
 | [CLI](cli.md) | `atskit discover` and `atskit list` |
 | [HTTP and rate limits](http-and-rate-limits.md) | `polite_get` / `polite_post` behavior |
 | [Adding an ATS client](adding-an-ats.md) | How to implement and register a new portal |
+| [Publishing](publishing.md) | GitHub Actions release to GitHub Packages |
 
 For a quick overview, see the [project README](../README.md).

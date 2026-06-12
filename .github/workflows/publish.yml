@@ -1,0 +1,42 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: pip install build twine
+
+      - name: Run tests
+        run: |
+          pip install -e ".[dev,greenhouse]"
+          pytest -q
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to GitHub Packages
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://upload.pypi.pkg.github.com/nirmalhk7/
+          user: nirmalhk7
+          password: ${{ secrets.GITHUB_TOKEN }}

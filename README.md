@@ -12,6 +12,8 @@ From GitHub:
 pip install git+https://github.com/nirmalhk7/atskit.git
 ```
 
+Built wheels are also published to [GitHub Packages](https://github.com/nirmalhk7/atskit/packages) on version tags (`v*`). See [docs/publishing.md](docs/publishing.md).
+
 For local development:
 
 ```bash

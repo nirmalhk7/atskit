@@ -4,11 +4,21 @@ ATSKit discovers open job listings from public ATS APIs. You supply a SQLite fil
 
 ## Install
 
-From GitHub:
+From GitHub (source):
 
 ```bash
 pip install git+https://github.com/nirmalhk7/atskit.git
 ```
+
+From GitHub Packages (built releases — see [Publishing](publishing.md)):
+
+```bash
+pip install atskit \
+  --index-url https://pypi.pkg.github.com/nirmalhk7/simple/ \
+  --extra-index-url https://pypi.org/simple/
+```
+
+Requires a GitHub token with `read:packages` when prompted for credentials.
 
 Local development (includes tests and Greenhouse HTML extraction):
 
