@@ -14,7 +14,7 @@
 
 **ATSKit** queries public ATS APIs for open job listings. Point it at a SQLite file with company portal metadata, and it **streams `JobListing` results per portal** as each board finishes — no server, no cron, no opinionated pipeline.
 
-It is the low-level scanner behind [VOYAGER](https://github.com/nirmalhk7/VOYAGER)'s Phase 1 discovery, but works as a standalone library in any Python project.
+Use it as a standalone library in any Python project, shell script, or automation pipeline.
 
 ## Features
 
@@ -182,10 +182,6 @@ pytest -q
 ```
 
 Contributions welcome — especially new ATS clients. See [docs/adding-an-ats.md](docs/adding-an-ats.md).
-
-## Used by
-
-- **[VOYAGER](https://github.com/nirmalhk7/VOYAGER)** — job application automation; ATSKit powers Phase 1 job listing discovery via `atskit.discover_jobs()`
 
 ## License
 

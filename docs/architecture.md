@@ -70,7 +70,7 @@ Population is optional. You can insert `portal_entries` rows yourself or use `ex
 
 ## Integration pattern
 
-Downstream apps (e.g. [VOYAGER](https://github.com/nirmalhk7/VOYAGER)) typically:
+Downstream apps typically:
 
 1. Sync portals from their own applied-jobs source via `build_portals(db, applied_jobs=provider)`.
 2. Run `discover_jobs(db)` and apply their own filters, deduplication, and persistence.
