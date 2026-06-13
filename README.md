@@ -29,24 +29,50 @@ It is the low-level scanner behind [VOYAGER](https://github.com/nirmalhk7/VOYAGE
 
 ## Quick start
 
+Install once — this registers the `atskit` command in your shell **and** the `atskit` Python module:
+
 ```bash
 git clone https://github.com/nirmalhk7/atskit.git
 cd atskit
 pip install -e ".[dev,greenhouse]"
-
-atskit discover --db example.db --max-workers 3
 ```
+
+The repo ships with **`example.db`** (471 portal rows). No setup required.
+
+### From bash (CLI)
+
+Use the CLI for smoke tests and one-off runs. Output is human-readable lines per portal:
+
+```bash
+# Discover jobs across every portal in the DB
+atskit discover --db example.db --max-workers 3
+
+# Or set the DB path once in your shell
+export ATSKIT_DB_PATH=example.db
+atskit discover
+
+# Spot-check a single board
+atskit list --portal greenhouse --slug stripe
+```
+
+### From Python (library)
+
+Use the API when you need structured `JobListing` objects — filtering, saving to your own DB, or piping into a pipeline:
 
 ```python
 from pathlib import Path
 import atskit
 
-for result in atskit.discover_jobs(Path("example.db")):
-    status = "ERR" if result.error else "OK"
-    print(f"[{status}] {result.entry.name}: {result.job_count} jobs")
+for result in atskit.discover_jobs(Path("example.db"), max_workers=3):
+    if result.error:
+        print(f"[ERR] {result.entry.name}: {result.error}")
+        continue
+    print(f"[OK] {result.entry.name}: {result.job_count} jobs")
     for job in result.jobs:
         print(f"  {job.title} — {job.apply_url}")
 ```
+
+Both paths call the same `discover_jobs()` under the hood. See [docs/cli.md](docs/cli.md) for all flags.
 
 ## Install
 
@@ -127,11 +153,14 @@ Full reference: [docs/api.md](docs/api.md).
 
 ## CLI
 
-```bash
-export ATSKIT_DB_PATH=example.db
-atskit discover --max-workers 3
-atskit list --portal greenhouse --slug stripe
-```
+The `atskit` console script is installed with the package. Commands:
+
+| Command | Purpose |
+|---------|---------|
+| `atskit discover` | Stream jobs from every portal in a SQLite DB |
+| `atskit list --portal <p> --slug <s>` | List jobs for one board (debug / spot check) |
+
+See **Quick start** above for examples. Full flag reference: [docs/cli.md](docs/cli.md).
 
 ## Documentation
 
