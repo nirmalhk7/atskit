@@ -35,13 +35,14 @@ class PortalStore:
                     portal TEXT NOT NULL,
                     sample_url TEXT NOT NULL,
                     updated_on TEXT NOT NULL,
-                    last_scanned_date TEXT NOT NULL DEFAULT ''
+                    last_scanned_date TEXT NOT NULL DEFAULT '',
+                    status INTEGER NOT NULL DEFAULT 1
                 )
                 """
             )
-        self._migrate_scanned_date()
+        self._migrate_columns()
 
-    def _migrate_scanned_date(self) -> None:
+    def _migrate_columns(self) -> None:
         if not self._conn.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'portal_entries'"
         ).fetchone():
@@ -50,18 +51,21 @@ class PortalStore:
             row["name"]
             for row in self._conn.execute("PRAGMA table_info(portal_entries)").fetchall()
         }
-        if "last_scanned_date" in columns:
-            return
         with self._conn:
-            self._conn.execute(
-                "ALTER TABLE portal_entries ADD COLUMN last_scanned_date TEXT NOT NULL DEFAULT ''"
-            )
+            if "last_scanned_date" not in columns:
+                self._conn.execute(
+                    "ALTER TABLE portal_entries ADD COLUMN last_scanned_date TEXT NOT NULL DEFAULT ''"
+                )
+            if "status" not in columns:
+                self._conn.execute(
+                    "ALTER TABLE portal_entries ADD COLUMN status INTEGER NOT NULL DEFAULT 1"
+                )
 
     def load(self) -> list[PortalEntry]:
         with self._lock:
             rows = self._conn.execute(
                 """
-                SELECT name, slug, portal, sample_url, last_scanned_date
+                SELECT name, slug, portal, sample_url, last_scanned_date, status
                 FROM portal_entries
                 ORDER BY lower(name), name
                 """
@@ -73,6 +77,7 @@ class PortalStore:
                     portal=row["portal"],
                     sample_url=row["sample_url"],
                     last_scanned_date=row["last_scanned_date"] or "",
+                    status=bool(row["status"] if row["status"] is not None else 1),
                 )
                 for row in rows
             ]
@@ -96,9 +101,9 @@ class PortalStore:
                 self._conn.execute(
                     """
                     INSERT OR REPLACE INTO portal_entries(
-                        name, slug, portal, sample_url, updated_on, last_scanned_date
+                        name, slug, portal, sample_url, updated_on, last_scanned_date, status
                     )
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         entry.name,
@@ -107,6 +112,7 @@ class PortalStore:
                         entry.sample_url,
                         updated_on,
                         last_scanned,
+                        1 if entry.status else 0,
                     ),
                 )
 

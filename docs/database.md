@@ -12,8 +12,9 @@ ATSKit uses a single SQLite table: `portal_entries`. Everything else in your `.d
 | `sample_url` | `TEXT NOT NULL` | Example job or board URL used when the row was created |
 | `updated_on` | `TEXT NOT NULL` | ISO date (`YYYY-MM-DD`) when the row was last written |
 | `last_scanned_date` | `TEXT NOT NULL` | ISO date of last successful `discover_jobs` scan; empty if never scanned |
+| `status` | `INTEGER NOT NULL DEFAULT 1` | `1` = enabled, `0` = disabled; disabled portals are skipped by `discover_jobs` |
 
-The table is created automatically on first `PortalStore` access. Older databases without `last_scanned_date` are migrated with `ALTER TABLE`.
+The table is created automatically on first `PortalStore` access. Older databases without `last_scanned_date` or `status` are migrated with `ALTER TABLE`.
 
 ## `PortalStore`
 
@@ -38,7 +39,7 @@ store.close()
 
 ### `replace(entries)`
 
-Replaces the entire `portal_entries` table. Rows with unsupported `portal` values or empty `name`/`slug` are skipped. Existing `last_scanned_date` values are preserved by company name when possible.
+Replaces the entire `portal_entries` table. Rows with unsupported `portal` values or empty `name`/`slug` are skipped. `status` is written from the supplied `PortalEntry` objects, and `last_scanned_date` is preserved by company name when possible.
 
 ### `load()`
 
@@ -84,6 +85,7 @@ added = atskit.sync_portals_from_applied("portals.db", applied_jobs=my_applied_j
 Company names are canonicalized (`title` case) and fuzzy-merged at ≥90% similarity (`rapidfuzz`). Built-in enterprise boards (Apple, Amazon, Microsoft, American Express) are always injected.
 
 `build_portals` skips rebuilding if the DB already has non-builtin entries unless `force_refresh=True`.
+When a company name already exists, its current `status` flag is kept so manually disabled rows stay disabled after refreshes.
 
 ## What ATSKit does not store
 

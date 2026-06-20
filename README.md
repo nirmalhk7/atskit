@@ -20,7 +20,7 @@ Use it as a standalone library in any Python project, shell script, or automatio
 
 - **Nine ATS backends** — Greenhouse, Lever, Ashby, Gem, Workday, Apple, Amazon, Microsoft, American Express
 - **Streaming discovery** — `discover_jobs()` yields `PortalJobsResult` per portal via `as_completed`, not batch-at-end
-- **Caller-owned SQLite** — reads/writes only `portal_entries`; bring your own DB path
+- **Caller-owned SQLite** — reads/writes only `portal_entries` (`status` flag included); bring your own DB path
 - **Polite HTTP** — per-host rate limits, retries on 429/5xx, browser-like headers
 - **URL intelligence** — classify job URLs into portal / slug / job id; clean URLs with optional query preservation
 - **Portal population** — build or sync `portal_entries` from applied-job URLs
@@ -105,10 +105,11 @@ flowchart LR
     ATS --> OUT
 ```
 
-1. Load company portals from `portal_entries` (`name`, `slug`, `portal`, `sample_url`)
+1. Load company portals from `portal_entries` (`name`, `slug`, `portal`, `sample_url`, `status`)
 2. Query each portal's public API in parallel (configurable workers)
 3. Yield normalized `JobListing` objects as each portal completes
 4. Optionally mark `last_scanned_date` to skip boards already scanned today
+5. Skip any row where `status = 0`
 
 ATSKit stops at job listings. Filtering, ranking, AI analysis, and application tracking are left to the consumer.
 

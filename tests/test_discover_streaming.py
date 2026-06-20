@@ -15,12 +15,22 @@ class TestDiscoverStreaming(unittest.TestCase):
         store.replace(
             [
                 PortalEntry(name="Fast", slug="fast", portal="lever", sample_url="https://example.com/fast"),
+                PortalEntry(
+                    name="Disabled",
+                    slug="disabled",
+                    portal="greenhouse",
+                    sample_url="https://example.com/disabled",
+                    status=False,
+                ),
                 PortalEntry(name="Slow", slug="slow", portal="greenhouse", sample_url="https://example.com/slow"),
             ]
         )
         store.close()
 
+        queried: list[str] = []
+
         def fake_query(entry: PortalEntry):
+            queried.append(entry.slug)
             if entry.slug == "slow":
                 time.sleep(0.2)
             return [
@@ -42,6 +52,7 @@ class TestDiscoverStreaming(unittest.TestCase):
         self.assertIsInstance(results[0], PortalJobsResult)
         slugs = {result.entry.slug for result in results}
         self.assertEqual(slugs, {"fast", "slow"})
+        self.assertCountEqual(queried, ["fast", "slow"])
         # Fast portal should finish before slow when using as_completed semantics.
         self.assertEqual(results[0].entry.slug, "fast")
 

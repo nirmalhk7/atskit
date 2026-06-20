@@ -1,3 +1,4 @@
+import sqlite3
 import unittest
 from pathlib import Path
 
@@ -46,13 +47,56 @@ class TestPortalStore(unittest.TestCase):
                     slug="stripe",
                     portal="greenhouse",
                     sample_url="https://boards.greenhouse.io/stripe",
+                    status=False,
                 )
             ]
             store.replace(entries)
             loaded = store.load()
             self.assertEqual(len(loaded), 1)
             self.assertEqual(loaded[0].name, "Stripe")
+            self.assertFalse(loaded[0].status)
             store.close()
+
+    def test_migrates_legacy_tables_to_add_status(self):
+        db_path = Path(self._get_temp_db())
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            """
+            CREATE TABLE portal_entries (
+                name TEXT PRIMARY KEY,
+                slug TEXT NOT NULL,
+                portal TEXT NOT NULL,
+                sample_url TEXT NOT NULL,
+                updated_on TEXT NOT NULL,
+                last_scanned_date TEXT NOT NULL DEFAULT ''
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO portal_entries(name, slug, portal, sample_url, updated_on, last_scanned_date)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "Stripe",
+                "stripe",
+                "greenhouse",
+                "https://boards.greenhouse.io/stripe",
+                "2026-06-01",
+                "",
+            ),
+        )
+        conn.commit()
+        conn.close()
+
+        store = PortalStore(db_path)
+        loaded = store.load()
+        self.assertEqual(len(loaded), 1)
+        self.assertTrue(loaded[0].status)
+        with sqlite3.connect(db_path) as check_conn:
+            columns = {row[1] for row in check_conn.execute("PRAGMA table_info(portal_entries)")}
+        self.assertIn("status", columns)
+        store.close()
 
     def _get_temp_db(self) -> str:
         import tempfile

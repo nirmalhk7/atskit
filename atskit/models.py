@@ -27,6 +27,7 @@ class PortalEntry(BaseModel):
     portal: str
     sample_url: str
     last_scanned_date: str = ""
+    status: bool = True
 
     model_config = {"frozen": True}
 

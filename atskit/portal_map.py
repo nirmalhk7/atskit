@@ -133,6 +133,7 @@ def build_portals(
 ) -> list[PortalEntry]:
     store = PortalStore(db_path)
     current_entries = load_portals(db_path)
+    current_statuses = {entry.name: entry.status for entry in current_entries}
     has_non_builtin_entries = any(
         (entry.portal, entry.slug.lower()) not in _builtin_keys()
         for entry in current_entries
@@ -168,6 +169,7 @@ def build_portals(
                 slug=classified.slug,
                 portal=classified.portal,
                 sample_url=url,
+                status=current_statuses.get(key, True),
             ),
         )
 
@@ -221,6 +223,7 @@ def sync_portals_from_applied(
             slug=classified.slug,
             portal=classified.portal,
             sample_url=url,
+            status=existing[key].status if key in existing else True,
         )
         found_new.append(new_entry)
         existing[key] = new_entry

@@ -38,6 +38,7 @@ def discover_jobs(
     entries = store.load()
     today = date.today().isoformat()
 
+    entries = [entry for entry in entries if entry.status]
     if skip_scanned_today:
         entries = [entry for entry in entries if entry.last_scanned_date != today]
     if portals:

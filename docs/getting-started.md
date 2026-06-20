@@ -37,7 +37,7 @@ Optional extras:
 
 ## Try it with `example.db`
 
-This repo ships `example.db` at the project root — a SQLite file with **471** real `portal_entries` rows (company name, ATS slug, sample URL). No setup required.
+This repo ships `example.db` at the project root — a SQLite file with **471** real `portal_entries` rows (company name, ATS slug, sample URL, enabled/disabled status). No setup required.
 
 ```bash
 # CLI
@@ -54,7 +54,7 @@ for r in atskit.discover_jobs(Path('example.db'), max_workers=3):
 "
 ```
 
-By default, `discover_jobs` skips portals already scanned today (`last_scanned_date`). Pass `skip_scanned_today=False` to rescan everything.
+By default, `discover_jobs` skips portals already scanned today (`last_scanned_date`) and any rows marked disabled (`status = 0`). Pass `skip_scanned_today=False` to rescan everything.
 
 ## Minimal workflow
 

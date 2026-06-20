@@ -24,6 +24,8 @@ for result in atskit.discover_jobs(Path("portals.db")):
 | `portals` | `None` | If set, only query these portal keys (e.g. `["greenhouse", "lever"]`) |
 | `mark_scanned` | `True` | Update `last_scanned_date` on success |
 
+Rows with `status = 0` are ignored before any work is submitted to the thread pool.
+
 **Greenhouse pacing:** consecutive Greenhouse results get a random 1–3s delay before yield to reduce burst traffic.
 
 ## Job queries
@@ -105,7 +107,7 @@ Lookup client module by portal key.
 
 ### `PortalEntry` (frozen)
 
-`name`, `slug`, `portal`, `sample_url`, `last_scanned_date`.
+`name`, `slug`, `portal`, `sample_url`, `last_scanned_date`, `status`.
 
 ### `PortalJobsResult`
 
